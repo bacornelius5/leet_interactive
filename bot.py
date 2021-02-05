@@ -8,10 +8,14 @@ from discord.ext import commands
 import pymongo
 from pymongo import MongoClient
 
+from state import Leet
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 client = discord.Client()
+
+bot = Leet()
 
 @client.event
 async def on_ready():
@@ -36,11 +40,10 @@ collection = db["user_data"]
 
 # check message for the keyword entry, asking them what problem they're entering a submission for
 
-new_entry = False # keeps track if their initial message contained they keyword "entry" to continue subsequent steps
 @client.event
 async def on_message(message):
     
-    if new_entry == False:
+    if bot.new_entry == False:
 
         if message.author == client.user:
             return
@@ -50,18 +53,22 @@ async def on_message(message):
         else:
             return
 
-        new_entry = True
+        bot.new_entry = True
         await message.channel.send(reply)
         return
     
-    if new_entry == True:
+    if bot.new_entry == True:
     
         if message.author == client.user:
             return
 
+        # prepare an iterable to be inserted in the mongo collection 
         problem_data = {"_id": message.author.id, "problem": str(message.content.lower())}
         collection.insert_one(problem_data)
-        await message.channel.send('Created a save for', str(message.content.lower()))
+
+        # reset new_entry to prepare for next commands, sends a confimation message to user 
+        bot.new_entry = False
+        await message.channel.send('Created a save for ' + str(message.content.lower()))
 
 
 
