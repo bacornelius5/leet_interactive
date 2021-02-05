@@ -34,9 +34,9 @@ async def on_ready():
 CONNECTION_URL = os.getenv('CONNECTION_URL')
 cluster = MongoClient(CONNECTION_URL) 
 
-db = cluster["sample_problem"]
+db = cluster["leet_code_problems"]
 
-collection = db["user_data"]
+
 
 # check message for the keyword entry, asking them what problem they're entering a submission for
 
@@ -62,8 +62,10 @@ async def on_message(message):
         if message.author == client.user:
             return
 
-        # prepare an iterable to be inserted in the mongo collection 
+        # prepare an iterable to be inserted in the mongo collection
+
         problem_data = {"_id": message.author.id, "problem": str(message.content.lower())}
+        collection = db[str(message.content.lower())]
         collection.insert_one(problem_data)
 
         # reset new_entry to prepare for next commands, sends a confimation message to user 
