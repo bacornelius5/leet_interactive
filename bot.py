@@ -42,12 +42,12 @@ db = cluster["leet_code_problems"]
 
 @client.event
 async def on_message(message):
-    
+
+    if message.author == client.user:
+        return
+
     if bot.new_entry == False:
 
-        if message.author == client.user:
-            return
-        
         if "entry" in str(message.content.lower()):
             reply = 'What is the problem called?'
         else:
@@ -59,18 +59,34 @@ async def on_message(message):
     
     if bot.new_entry == True:
     
-        if message.author == client.user:
-            return
-
         # prepare an iterable to be inserted in the mongo collection
 
         problem_data = {"_id": message.author.id, "problem": str(message.content.lower())}
-        collection = db[str(message.content.lower())]
-        collection.insert_one(problem_data)
+        
 
         # reset new_entry to prepare for next commands, sends a confimation message to user 
         bot.new_entry = False
-        await message.channel.send('Created a save for ' + str(message.content.lower()))
+        bot.runtime_entry = True
+
+        await message.channel.send('Creating a save for ' + str(message.content.lower()))
+        await message.channel.send('Please enter your runtime')
+        return
+    
+    if bot.runtime_entry == True:
+        
+        runtime = 0
+
+        # loop through the message to pull out only the numerical value
+        for i in str(message.content):
+            
+            if i.isnumeric == False:
+                continue
+            else:
+                runtime = (runtime * 10) + int(i) # multiply by 10 in order to move the decimal place as the number grows, then add the new lowest digit
+        
+        problem_data["runtime"] = runtime
+        collection = db[str(message.content.lower())]
+        collection.insert_one(problem_data)
 
 
 

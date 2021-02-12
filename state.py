@@ -5,5 +5,11 @@ class Leet:
 
         # has the user has already prompted bot to submit a new problem entry
         self.new_entry = False
+
+        # has the user entered a problem title
+        self.runtime_entry = False
+
+        # has the user already entered a runtime
+        self.memory_usage = False
     
     
