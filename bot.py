@@ -57,36 +57,37 @@ async def on_message(message):
         await message.channel.send(reply)
         return
     
-    if bot.new_entry == True:
+    if bot.new_problem == False:
     
         # prepare an iterable to be inserted in the mongo collection
 
-        problem_data = {"_id": message.author.id, "problem": str(message.content.lower())}
-        
+        bot.problem_data = {"_id": message.author.id, "problem": str(message.content.lower())}
 
-        # reset new_entry to prepare for next commands, sends a confimation message to user 
-        bot.new_entry = False
-        bot.runtime_entry = True
+        bot.new_problem = True
 
         await message.channel.send('Creating a save for ' + str(message.content.lower()))
         await message.channel.send('Please enter your runtime')
         return
     
-    if bot.runtime_entry == True:
+    if bot.runtime_entry == False:
         
         runtime = 0
 
         # loop through the message to pull out only the numerical value
         for i in str(message.content):
             
-            if i.isnumeric == False:
+            if i.isnumeric() == False:
                 continue
             else:
                 runtime = (runtime * 10) + int(i) # multiply by 10 in order to move the decimal place as the number grows, then add the new lowest digit
         
-        problem_data["runtime"] = runtime
-        collection = db[str(message.content.lower())]
-        collection.insert_one(problem_data)
+        bot.problem_data["runtime"] = runtime
+        collection = db[bot.problem_data["problem"]]
+        collection.insert_one(bot.problem_data)
+
+        bot.runtime_entry = True
+        await message.channel.send('Runtime saved')
+        return
 
 
 
