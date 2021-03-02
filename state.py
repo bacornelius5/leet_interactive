@@ -17,5 +17,12 @@ class Leet:
 
         # has the user already entered a runtime
         self.memory_usage = False
+
+        self.solution = False
+
+        # has the user asked to pull a problem from mongo
+        self.should_pull = False
+
+
     
     
